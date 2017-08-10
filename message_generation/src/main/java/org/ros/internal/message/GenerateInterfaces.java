@@ -18,7 +18,6 @@ package org.ros.internal.message;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
 import org.apache.commons.io.FileUtils;
 import org.ros.exception.RosMessageRuntimeException;
 import org.ros.internal.message.definition.MessageDefinitionProviderChain;
@@ -63,7 +62,7 @@ public class GenerateInterfaces {
    *          the directory to write the generated interfaces to
    * @throws IOException
    */
-  private void writeTopicInterfaces(File outputDirectory, Collection<String> packages)
+  private void writeTopicInterfacesAndClasses(File outputDirectory, Collection<String> packages)
       throws IOException {
     Collection<MessageIdentifier> topicTypes = Sets.newHashSet();
     if (packages.size() == 0) {
@@ -79,7 +78,7 @@ public class GenerateInterfaces {
     for (MessageIdentifier topicType : topicTypes) {
       String definition = messageDefinitionProviderChain.get(topicType.getType());
       MessageDeclaration messageDeclaration = new MessageDeclaration(topicType, definition);
-      writeInterface(messageDeclaration, outputDirectory, true);
+      writeInterface(messageDeclaration, outputDirectory, true, true);
     }
   }
 
@@ -108,29 +107,35 @@ public class GenerateInterfaces {
       String definition = messageDefinitionProviderChain.get(serviceType.getType());
       MessageDeclaration serviceDeclaration =
           MessageDeclaration.of(serviceType.getType(), definition);
-      writeInterface(serviceDeclaration, outputDirectory, false);
+      writeInterface(serviceDeclaration, outputDirectory, false, false);
       List<String> requestAndResponse = MessageDefinitionTupleParser.parse(definition, 2);
       MessageDeclaration requestDeclaration =
           MessageDeclaration.of(serviceType.getType() + "Request", requestAndResponse.get(0));
       MessageDeclaration responseDeclaration =
           MessageDeclaration.of(serviceType.getType() + "Response", requestAndResponse.get(1));
-      writeInterface(requestDeclaration, outputDirectory, true);
-      writeInterface(responseDeclaration, outputDirectory, true);
+      writeInterface(requestDeclaration, outputDirectory, true, false);
+      writeInterface(responseDeclaration, outputDirectory, true, false);
     }
   }
 
   private void writeInterface(MessageDeclaration messageDeclaration, File outputDirectory,
-      boolean addConstantsAndMethods) {
+      boolean addConstantsAndMethods, boolean writeClass) {
     MessageInterfaceBuilder builder = new MessageInterfaceBuilder();
     builder.setPackageName(messageDeclaration.getPackage());
     builder.setInterfaceName(messageDeclaration.getName());
     builder.setMessageDeclaration(messageDeclaration);
     builder.setAddConstantsAndMethods(addConstantsAndMethods);
     try {
-      String content;
-      content = builder.build(messageFactory);
-      File file = new File(outputDirectory, messageDeclaration.getType() + ".java");
-      FileUtils.writeStringToFile(file, content);
+      {
+        String content = builder.build(messageFactory);
+        File file = new File(outputDirectory, messageDeclaration.getType() + ".java");
+        FileUtils.writeStringToFile(file, content);
+      }
+      if (writeClass) {
+        String content = builder.buildClass(messageFactory);
+        File file = new File(outputDirectory, messageDeclaration.getType() + "Impl.java");
+        FileUtils.writeStringToFile(file, content);
+      }
     } catch (Exception e) {
       System.out.printf("Failed to generate interface for %s.\n", messageDeclaration.getType());
       e.printStackTrace();
@@ -146,7 +151,7 @@ public class GenerateInterfaces {
     topicDefinitionFileProvider.update();
     serviceDefinitionFileProvider.update();
     try {
-      writeTopicInterfaces(outputDirectory, packages);
+      writeTopicInterfacesAndClasses(outputDirectory, packages);
       writeServiceInterfaces(outputDirectory, packages);
     } catch (IOException e) {
       throw new RosMessageRuntimeException(e);
