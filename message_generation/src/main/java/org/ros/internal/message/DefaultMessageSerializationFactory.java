@@ -27,15 +27,18 @@ import org.ros.message.MessageSerializer;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
+ * @author pavel.cernocky@artin.cz
  */
 public class DefaultMessageSerializationFactory implements MessageSerializationFactory {
 
+  private final RoboMessageImplClassProvider messageImplClassProvider;
   private final MessageFactory topicMessageFactory;
   private final ServiceRequestMessageFactory serviceRequestMessageFactory;
   private final ServiceResponseMessageFactory serviceResponseMessageFactory;
 
   public DefaultMessageSerializationFactory(MessageDefinitionProvider messageDefinitionProvider) {
-    topicMessageFactory = new DefaultMessageFactory(messageDefinitionProvider);
+    messageImplClassProvider = new RoboMessageImplClassProvider();
+    topicMessageFactory = new RoboMessageFactory(messageImplClassProvider);
     serviceRequestMessageFactory = new ServiceRequestMessageFactory(messageDefinitionProvider);
     serviceResponseMessageFactory = new ServiceResponseMessageFactory(messageDefinitionProvider);
   }
@@ -48,8 +51,8 @@ public class DefaultMessageSerializationFactory implements MessageSerializationF
 
   @Override
   public <T> MessageDeserializer<T> newMessageDeserializer(String messageType) {
-    return new DefaultMessageDeserializer<T>(MessageIdentifier.of(messageType),
-        topicMessageFactory);
+    return new RoboMessageDeserializer<T>(MessageIdentifier.of(messageType),
+        topicMessageFactory, messageImplClassProvider);
   }
 
   @SuppressWarnings("unchecked")
