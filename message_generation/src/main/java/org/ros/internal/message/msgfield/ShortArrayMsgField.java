@@ -1,5 +1,6 @@
 package org.ros.internal.message.msgfield;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 
 /**
@@ -10,9 +11,21 @@ public class ShortArrayMsgField extends ObjectMsgField {
 
     private final int size;
 
-    public ShortArrayMsgField(Class<?> msgClass, String setterName, int size) {
-        super(msgClass, setterName, short[].class);
+    public ShortArrayMsgField(Class<?> msgClass, String getterName, String setterName, int size) {
+        super(msgClass, getterName, setterName, short[].class);
         this.size = size;
+    }
+
+    @Override
+    protected void serialize(ByteBuf buffer, Object value) {
+        Preconditions.checkArgument(value instanceof short[]);
+        short[] typedValues = (short[]) value;
+        if (size < 0) {
+            buffer.writeInt(typedValues.length);
+        }
+        for (short shortValue : typedValues) {
+            buffer.writeShort(shortValue);
+        }
     }
 
     @Override

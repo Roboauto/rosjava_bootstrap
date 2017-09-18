@@ -31,14 +31,14 @@ import org.ros.message.MessageSerializer;
  */
 public class DefaultMessageSerializationFactory implements MessageSerializationFactory {
 
-  private final RoboMessageImplClassProvider messageImplClassProvider;
+  private final MessageClassAndFieldsProvider messageClassAndFieldsProvider;
   private final MessageFactory topicMessageFactory;
   private final ServiceRequestMessageFactory serviceRequestMessageFactory;
   private final ServiceResponseMessageFactory serviceResponseMessageFactory;
 
-  public DefaultMessageSerializationFactory(MessageDefinitionProvider messageDefinitionProvider) {
-    messageImplClassProvider = new RoboMessageImplClassProvider();
-    topicMessageFactory = new RoboMessageFactory(messageImplClassProvider);
+  public DefaultMessageSerializationFactory(MessageDefinitionProvider messageDefinitionProvider, MessageClassAndFieldsProvider messageClassAndFieldsProvider) {
+    this.messageClassAndFieldsProvider = messageClassAndFieldsProvider;
+    topicMessageFactory = new FastMessageFactory(messageClassAndFieldsProvider);
     serviceRequestMessageFactory = new ServiceRequestMessageFactory(messageDefinitionProvider);
     serviceResponseMessageFactory = new ServiceResponseMessageFactory(messageDefinitionProvider);
   }
@@ -46,13 +46,12 @@ public class DefaultMessageSerializationFactory implements MessageSerializationF
   @SuppressWarnings("unchecked")
   @Override
   public <T> MessageSerializer<T> newMessageSerializer(String messageType) {
-    return (MessageSerializer<T>) new DefaultMessageSerializer();
+    return (MessageSerializer<T>) new FastMessageSerializer(MessageIdentifier.of(messageType), topicMessageFactory, messageClassAndFieldsProvider);
   }
 
   @Override
   public <T> MessageDeserializer<T> newMessageDeserializer(String messageType) {
-    return new RoboMessageDeserializer<T>(MessageIdentifier.of(messageType),
-        topicMessageFactory, messageImplClassProvider);
+    return new FastMessageDeserializer<T>(MessageIdentifier.of(messageType), topicMessageFactory, messageClassAndFieldsProvider);
   }
 
   @SuppressWarnings("unchecked")
@@ -62,7 +61,7 @@ public class DefaultMessageSerializationFactory implements MessageSerializationF
   }
 
   @Override
-  public <T> org.ros.message.MessageDeserializer<T>
+  public <T> MessageDeserializer<T>
       newServiceRequestDeserializer(String serviceType) {
     return new DefaultMessageDeserializer<T>(MessageIdentifier.of(serviceType),
         serviceRequestMessageFactory);
@@ -70,12 +69,12 @@ public class DefaultMessageSerializationFactory implements MessageSerializationF
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> org.ros.message.MessageSerializer<T> newServiceResponseSerializer(String serviceType) {
+  public <T> MessageSerializer<T> newServiceResponseSerializer(String serviceType) {
     return (MessageSerializer<T>) new DefaultMessageSerializer();
   }
 
   @Override
-  public <T> org.ros.message.MessageDeserializer<T> newServiceResponseDeserializer(
+  public <T> MessageDeserializer<T> newServiceResponseDeserializer(
       String serviceType) {
     return new DefaultMessageDeserializer<T>(MessageIdentifier.of(serviceType),
         serviceResponseMessageFactory);

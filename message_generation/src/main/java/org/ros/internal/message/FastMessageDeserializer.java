@@ -12,17 +12,17 @@ import java.util.List;
 /**
  * @author pavel.cernocky@artin.cz
  */
-public class RoboMessageDeserializer<T> implements MessageDeserializer<T> {
+public class FastMessageDeserializer<T> implements MessageDeserializer<T> {
 
     private final MessageIdentifier messageIdentifier;
     private final MessageFactory messageFactory;
 
     private final List<MsgField> msgFields;
 
-    public RoboMessageDeserializer(MessageIdentifier messageIdentifier, MessageFactory messageFactory, RoboMessageImplClassProvider messageImplClassProvider) {
+    public FastMessageDeserializer(MessageIdentifier messageIdentifier, MessageFactory messageFactory, MessageClassAndFieldsProvider messageClassAndFieldsProvider) {
         this.messageIdentifier = messageIdentifier;
         this.messageFactory = messageFactory;
-        this.msgFields = new RoboMsgFieldsFactory(messageFactory, messageImplClassProvider).createMsgFields(messageIdentifier);
+        this.msgFields = messageClassAndFieldsProvider.getMessageFields(messageIdentifier.getType(), messageFactory);
     }
 
     @SuppressWarnings("unchecked")
@@ -32,7 +32,7 @@ public class RoboMessageDeserializer<T> implements MessageDeserializer<T> {
 
         Object msg = messageFactory.newFromType(messageIdentifier.getType());
         for (MsgField msgField : msgFields) {
-            msgField.setValue(msg, buffer);
+            msgField.setBufferValueToObject(msg, buffer);
         }
 
         return (T) msg;

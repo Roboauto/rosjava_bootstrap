@@ -21,21 +21,20 @@ import org.ros.message.MessageFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * @author damonkohler@google.com (Damon Kohler)
  * @author pavel.cernocky@artin.cz
  */
-public class RoboMessageFactory implements MessageFactory {
+public class FastMessageFactory implements MessageFactory {
 
-  private final RoboMessageImplClassProvider messageImplClassProvider;
+  private final MessageClassAndFieldsProvider messageClassAndFieldsProvider;
 
-  public RoboMessageFactory(RoboMessageImplClassProvider messageImplClassProvider) {
-    this.messageImplClassProvider = checkNotNull(messageImplClassProvider);
+  public FastMessageFactory(MessageClassAndFieldsProvider messageClassAndFieldsProvider) {
+    this.messageClassAndFieldsProvider = checkNotNull(messageClassAndFieldsProvider);
   }
 
   @Override
   public <T> T newFromType(String messageType) {
     try {
-      return (T) messageImplClassProvider.getMessageImplClass(messageType).newInstance();
+      return (T) messageClassAndFieldsProvider.getMessageClass(messageType, this).newInstance();
     }
     catch (InstantiationException | IllegalAccessException e) {
       throw new RuntimeException(e);

@@ -1,11 +1,11 @@
 package org.ros.internal.message.msgfield;
 
 import io.netty.buffer.ByteBuf;
-import org.ros.internal.message.DefaultMessageDeserializer;
-import org.ros.internal.message.RoboMessageDeserializer;
-import org.ros.internal.message.RoboMessageImplClassProvider;
+import org.ros.internal.message.FastMessageDeserializer;
+import org.ros.internal.message.FastMessageSerializer;
+import org.ros.internal.message.Message;
+import org.ros.internal.message.MessageClassAndFieldsProvider;
 import org.ros.internal.message.field.FieldType;
-import org.ros.message.MessageDeserializer;
 import org.ros.message.MessageFactory;
 import org.ros.message.MessageIdentifier;
 
@@ -15,10 +15,11 @@ import org.ros.message.MessageIdentifier;
 
 public class MessageMsgField extends ObjectMsgField {
 
-    private final RoboMessageDeserializer messageDeserializer;
+    private final FastMessageSerializer messageSerializer;
+    private final FastMessageDeserializer messageDeserializer;
 
     // factory method, because constructor can not handle try-catch around super()
-    public static MessageMsgField create(Class<?> msgClass, String setterName, FieldType fieldType, MessageFactory messageFactory, RoboMessageImplClassProvider messageImplClassProvider) {
+    public static MessageMsgField create(Class<?> msgClass, String getterName, String setterName, FieldType fieldType, MessageFactory messageFactory, MessageClassAndFieldsProvider messageClassAndFieldsProvider) {
         Class<?> fieldClass;
         try {
             fieldClass = Class.forName(fieldType.getJavaTypeName());
@@ -26,13 +27,19 @@ public class MessageMsgField extends ObjectMsgField {
         catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        return new MessageMsgField(msgClass, setterName, fieldType, fieldClass, messageFactory, messageImplClassProvider);
+        return new MessageMsgField(msgClass, getterName, setterName, fieldType, fieldClass, messageFactory, messageClassAndFieldsProvider);
     }
 
-    private MessageMsgField(Class<?> msgClass, String setterName, FieldType fieldType, Class<?> fieldClass, MessageFactory messageFactory, RoboMessageImplClassProvider messageImplClassProvider) {
-        super(msgClass, setterName, fieldClass);
+    private MessageMsgField(Class<?> msgClass, String getterName, String setterName, FieldType fieldType, Class<?> fieldClass, MessageFactory messageFactory, MessageClassAndFieldsProvider messageClassAndFieldsProvider) {
+        super(msgClass, getterName, setterName, fieldClass);
         MessageIdentifier messageIdentifier = MessageIdentifier.of(fieldType.getName());
-        messageDeserializer = new RoboMessageDeserializer(messageIdentifier, messageFactory, messageImplClassProvider);
+        messageSerializer = new FastMessageSerializer(messageIdentifier, messageFactory, messageClassAndFieldsProvider);
+        messageDeserializer = new FastMessageDeserializer(messageIdentifier, messageFactory, messageClassAndFieldsProvider);
+    }
+
+    @Override
+    protected void serialize(ByteBuf buffer, Object value) {
+        messageSerializer.serialize((Message) value, buffer);
     }
 
     @Override

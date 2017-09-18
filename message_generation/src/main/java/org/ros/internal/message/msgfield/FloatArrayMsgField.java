@@ -1,5 +1,6 @@
 package org.ros.internal.message.msgfield;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 
 /**
@@ -10,9 +11,21 @@ public class FloatArrayMsgField extends ObjectMsgField {
 
     private final int size;
 
-    public FloatArrayMsgField(Class<?> msgClass, String setterName, int size) {
-        super(msgClass, setterName, float[].class);
+    public FloatArrayMsgField(Class<?> msgClass, String getterName, String setterName, int size) {
+        super(msgClass, getterName, setterName, float[].class);
         this.size = size;
+    }
+
+    @Override
+    protected void serialize(ByteBuf buffer, Object value) {
+        Preconditions.checkArgument(value instanceof float[]);
+        float[] typedValues = (float[]) value;
+        if (size < 0) {
+            buffer.writeInt(typedValues.length);
+        }
+        for (float floatValue : typedValues) {
+            buffer.writeFloat(floatValue);
+        }
     }
 
     @Override

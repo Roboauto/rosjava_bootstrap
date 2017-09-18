@@ -1,9 +1,11 @@
 package org.ros.internal.message.msgfield;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import org.ros.internal.message.DefaultMessageDeserializer;
-import org.ros.internal.message.RoboMessageDeserializer;
-import org.ros.internal.message.RoboMessageImplClassProvider;
+import org.ros.internal.message.FastMessageDeserializer;
+import org.ros.internal.message.FastMessageSerializer;
+import org.ros.internal.message.Message;
+import org.ros.internal.message.MessageClassAndFieldsProvider;
 import org.ros.internal.message.field.FieldType;
 import org.ros.message.MessageFactory;
 import org.ros.message.MessageIdentifier;
@@ -17,24 +19,26 @@ import java.util.List;
 
 public class ListMsgField extends ObjectMsgField {
 
-    private final RoboMessageDeserializer messageDeserializer;
+    private final FastMessageSerializer messageSerializer;
+    private final FastMessageDeserializer messageDeserializer;
 
-    // factory method, because constructor can not handle try-catch around super()
-    public static ListMsgField create(Class<?> msgClass, String setterName, FieldType componentFieldType, MessageFactory messageFactory, RoboMessageImplClassProvider messageImplClassProvider) {
-        Class<?> componentClass;
-        try {
-            componentClass = Class.forName(componentFieldType.getJavaTypeName());
-        }
-        catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        return new ListMsgField(msgClass, setterName, componentFieldType, componentClass, messageFactory, messageImplClassProvider);
+    public ListMsgField(Class<?> msgClass, String getterName, String setterName, FieldType componentFieldType, MessageFactory messageFactory, MessageClassAndFieldsProvider messageClassAndFieldsProvider) {
+        super(msgClass, getterName, setterName, List.class);
+
+        MessageIdentifier messageIdentifier = MessageIdentifier.of(componentFieldType.getName());
+        messageSerializer = new FastMessageSerializer(messageIdentifier, messageFactory, messageClassAndFieldsProvider);
+        messageDeserializer = new FastMessageDeserializer(messageIdentifier, messageFactory, messageClassAndFieldsProvider);
     }
 
-    private ListMsgField(Class<?> msgClass, String setterName, FieldType componentFieldType, Class<?> componentClass, MessageFactory messageFactory, RoboMessageImplClassProvider messageImplClassProvider) {
-        super(msgClass, setterName, List.class);
-        MessageIdentifier messageIdentifier = MessageIdentifier.of(componentFieldType.getName());
-        messageDeserializer = new RoboMessageDeserializer(messageIdentifier, messageFactory, messageImplClassProvider);
+    @Override
+    protected void serialize(ByteBuf buffer, Object value) {
+        Preconditions.checkArgument(value instanceof List);
+        List<Object> typedValues = (List) value;
+        buffer.writeInt(typedValues.size());
+
+        for (Object objectValue : typedValues) {
+            messageSerializer.serialize((Message) objectValue, buffer);
+        }
     }
 
     @Override
