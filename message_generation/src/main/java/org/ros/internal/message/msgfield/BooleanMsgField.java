@@ -19,7 +19,7 @@ public class BooleanMsgField extends AbstractMsgField {
         try {
             Object value = getter.invoke(object);
             Preconditions.checkArgument(value instanceof Boolean);
-            buffer.writeInt((Boolean) value ? 1 : 0);
+            buffer.writeByte((Boolean) value ? 1 : 0);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);

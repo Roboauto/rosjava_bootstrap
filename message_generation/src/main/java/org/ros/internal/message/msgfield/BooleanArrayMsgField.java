@@ -23,7 +23,7 @@ public class BooleanArrayMsgField extends ObjectMsgField {
             buffer.writeInt(typedValues.length);
         }
         for (boolean booleanValue : typedValues) {
-            buffer.writeInt(booleanValue ? 1 : 0);
+            buffer.writeByte(booleanValue ? 1 : 0);
         }
     }
 
