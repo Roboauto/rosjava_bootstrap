@@ -8,20 +8,26 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author pavel.cernocky@artin.cz
+ * @author pavel.erlebach@artin.cz
  */
 
-public class DurationMsgField extends ObjectMsgField {
+public class DurationMsgField extends AbstractMsgField {
 
     public DurationMsgField(Class<?> msgClass, String getterName, String setterName) {
         super(msgClass, getterName, setterName, Duration.class);
     }
 
     @Override
-    protected void serialize(ByteBuf buffer, Object value) {
-        Preconditions.checkArgument(value instanceof Duration);
-        Duration typedValue = (Duration) value;
+    protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
+        Preconditions.checkArgument(valueToBeSerialized instanceof Duration);
+        Duration typedValue = (Duration) valueToBeSerialized;
         buffer.writeInt(typedValue.secs);
         buffer.writeInt(typedValue.nsecs);
+    }
+
+    @Override
+    protected void serializeNull(ByteBuf buffer) {
+        buffer.writeInt(0).writeInt(0);
     }
 
     @Override

@@ -8,9 +8,10 @@ import java.nio.charset.Charset;
 
 /**
  * @author pavel.cernocky@artin.cz
+ * @author pavel.erlebach@artin.cz
  */
 
-public class StringMsgField extends ObjectMsgField {
+public class StringMsgField extends AbstractMsgField {
 
     public static final Charset CHARSET = Charset.forName("UTF-8");
 
@@ -19,12 +20,17 @@ public class StringMsgField extends ObjectMsgField {
     }
 
     @Override
-    protected void serialize(ByteBuf buffer, Object value) {
-        Preconditions.checkArgument(value instanceof String);
-        String typedValue = (String) value;
+    protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
+        Preconditions.checkArgument(valueToBeSerialized instanceof String);
+        String typedValue = (String) valueToBeSerialized;
         byte[] bytes = typedValue.getBytes(CHARSET);
         buffer.writeInt(bytes.length);
         buffer.writeBytes(bytes);
+    }
+
+    @Override
+    protected void serializeNull(ByteBuf buffer) {
+        buffer.writeInt(0);
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author pavel.cernocky@artin.cz
+ * @author pavel.erlebach@artin.cz
  */
 public class BooleanMsgField extends AbstractMsgField {
 
@@ -15,26 +16,19 @@ public class BooleanMsgField extends AbstractMsgField {
     }
 
     @Override
-    public void writeObjectValueToBuffer(Object object, ByteBuf buffer) {
-        try {
-            Object value = getter.invoke(object);
-            Preconditions.checkArgument(value instanceof Boolean);
-            buffer.writeByte((Boolean) value ? 1 : 0);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
+        Preconditions.checkArgument(valueToBeSerialized instanceof Boolean);
+        buffer.writeByte((Boolean) valueToBeSerialized ? 1 : 0);
     }
 
     @Override
-    public void setBufferValueToObject(Object object, ByteBuf buffer) {
-        boolean fieldValue = buffer.readByte() == 1;
-        try {
-            setter.invoke(object, fieldValue);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    protected void serializeNull(ByteBuf buffer) {
+        buffer.writeByte(0);
+    }
+
+    @Override
+    protected Object deserialize(ByteBuf buffer) {
+        return buffer.readByte() == 1;
     }
 
 }

@@ -2,24 +2,23 @@ package org.ros.internal.message.msgfield;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 /**
  * @author pavel.cernocky@artin.cz
+ * @author pavel.erlebach@artin.cz
  */
 
-public class ByteBufMsgField extends ObjectMsgField {
-
-    private final int size;
+public class ByteBufMsgField extends AbstractArrayMsgField {
 
     public ByteBufMsgField(Class<?> msgClass, String getterName, String setterName, int size) {
-        super(msgClass, getterName, setterName, ByteBuf.class);
-        this.size = size;
+        super(msgClass, getterName, setterName, ByteBuf.class, size);
     }
 
     @Override
-    protected void serialize(ByteBuf buffer, Object value) {
-        Preconditions.checkArgument(value instanceof ByteBuf);
-        ByteBuf typedValue = (ByteBuf) value;
+    protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
+        Preconditions.checkArgument(valueToBeSerialized instanceof ByteBuf);
+        ByteBuf typedValue = (ByteBuf) valueToBeSerialized;
         if (size < 0) {
             buffer.writeInt(typedValue.readableBytes());
         }
@@ -34,4 +33,8 @@ public class ByteBufMsgField extends ObjectMsgField {
         return buffer.readSlice(length);
     }
 
+    @Override
+    void writeDefaultItemToBuffer(ByteBuf buffer) {
+        buffer.writeByte(0);
+    }
 }

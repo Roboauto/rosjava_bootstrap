@@ -1,6 +1,7 @@
 package org.ros.internal.message.msgfield;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import org.ros.message.Time;
 
@@ -9,17 +10,18 @@ import java.util.List;
 
 /**
  * @author pavel.erlebach@artin.cz
+ * @author pavel.erlebach@artin.cz
  */
-public class TimeListMsgField extends ObjectMsgField {
+public class TimeListMsgField extends AbstractListMsgField {
 
     public TimeListMsgField(Class<?> msgClass, String getterName, String setterName) {
         super(msgClass, getterName, setterName, List.class);
     }
 
     @Override
-    protected void serialize(ByteBuf buffer, Object value) {
-        Preconditions.checkArgument(value instanceof List);
-        List<Time> typedValues = (List) value;
+    protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
+        Preconditions.checkArgument(valueToBeSerialized instanceof List);
+        List<Time> typedValues = (List) valueToBeSerialized;
         buffer.writeInt(typedValues.size());
 
         for (Time typedValue : typedValues) {

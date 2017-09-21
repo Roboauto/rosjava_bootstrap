@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author pavel.cernocky@artin.cz
+ * @author pavel.erlebach@artin.cz
  */
 
 public class FloatMsgField extends AbstractMsgField {
@@ -16,26 +17,18 @@ public class FloatMsgField extends AbstractMsgField {
     }
 
     @Override
-    public void writeObjectValueToBuffer(Object object, ByteBuf buffer) {
-        try {
-            Object value = getter.invoke(object);
-            Preconditions.checkArgument(value instanceof Float);
-            buffer.writeFloat((Float) value);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
+        Preconditions.checkArgument(valueToBeSerialized instanceof Float);
+        buffer.writeFloat((Float) valueToBeSerialized);
     }
 
     @Override
-    public void setBufferValueToObject(Object object, ByteBuf buffer) {
-        float fieldValue = buffer.readFloat();
-        try {
-            setter.invoke(object, fieldValue);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    protected void serializeNull(ByteBuf buffer) {
+        buffer.writeFloat(0);
     }
 
+    @Override
+    protected Object deserialize(ByteBuf buffer) {
+        return buffer.readFloat();
+    }
 }

@@ -5,21 +5,19 @@ import io.netty.buffer.ByteBuf;
 
 /**
  * @author pavel.cernocky@artin.cz
+ * @author pavel.erlebach@artin.cz
  */
 
-public class DoubleArrayMsgField extends ObjectMsgField {
-
-    private final int size;
+public class DoubleArrayMsgField extends AbstractArrayMsgField {
 
     public DoubleArrayMsgField(Class<?> msgClass, String getterName, String setterName, int size) {
-        super(msgClass, getterName, setterName, double[].class);
-        this.size = size;
+        super(msgClass, getterName, setterName, double[].class, size);
     }
 
     @Override
-    protected void serialize(ByteBuf buffer, Object value) {
-        Preconditions.checkArgument(value instanceof double[]);
-        double[] typedValues = (double[]) value;
+    protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
+        Preconditions.checkArgument(valueToBeSerialized instanceof double[]);
+        double[] typedValues = (double[]) valueToBeSerialized;
         if (size < 0) {
             buffer.writeInt(typedValues.length);
         }
@@ -37,4 +35,8 @@ public class DoubleArrayMsgField extends ObjectMsgField {
         return value;
     }
 
+    @Override
+    void writeDefaultItemToBuffer(ByteBuf buffer) {
+        buffer.writeDouble(0);
+    }
 }

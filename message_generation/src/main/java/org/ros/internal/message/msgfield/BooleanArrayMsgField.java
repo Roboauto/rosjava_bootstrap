@@ -2,23 +2,22 @@ package org.ros.internal.message.msgfield;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import org.apache.commons.lang.ArrayUtils;
 
 /**
  * @author pavel.cernocky@artin.cz
+ * @author pavel.erlebach@artin.cz
  */
-public class BooleanArrayMsgField extends ObjectMsgField {
-
-    private final int size;
+public class BooleanArrayMsgField extends AbstractArrayMsgField {
 
     public BooleanArrayMsgField(Class<?> msgClass, String getterName, String setterName, int size) {
-        super(msgClass, getterName, setterName, boolean[].class);
-        this.size = size;
+        super(msgClass, getterName, setterName, boolean[].class, size);
     }
 
     @Override
-    protected void serialize(ByteBuf buffer, Object value) {
-        Preconditions.checkArgument(value instanceof boolean[]);
-        boolean[] typedValues = (boolean[]) value;
+    protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
+        Preconditions.checkArgument(valueToBeSerialized instanceof boolean[]);
+        boolean[] typedValues = (boolean[]) valueToBeSerialized;
         if (size < 0) {
             buffer.writeInt(typedValues.length);
         }
@@ -37,4 +36,8 @@ public class BooleanArrayMsgField extends ObjectMsgField {
         return value;
     }
 
+    @Override
+    void writeDefaultItemToBuffer(ByteBuf buffer) {
+        buffer.writeByte(0);
+    }
 }

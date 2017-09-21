@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author pavel.cernocky@artin.cz
+ * @author pavel.erlebach@artin.cz
  */
 public class DoubleMsgField extends AbstractMsgField {
 
@@ -15,26 +16,18 @@ public class DoubleMsgField extends AbstractMsgField {
     }
 
     @Override
-    public void writeObjectValueToBuffer(Object object, ByteBuf buffer) {
-        try {
-            Object value = getter.invoke(object);
-            Preconditions.checkArgument(value instanceof Double);
-            buffer.writeDouble((Double) value);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
+        Preconditions.checkArgument(valueToBeSerialized instanceof Double);
+        buffer.writeDouble((Double) valueToBeSerialized);
     }
 
     @Override
-    public void setBufferValueToObject(Object object, ByteBuf buffer) {
-        double fieldValue = buffer.readDouble();
-        try {
-            setter.invoke(object, fieldValue);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    protected void serializeNull(ByteBuf buffer) {
+        buffer.writeDouble(0);
     }
 
+    @Override
+    protected Object deserialize(ByteBuf buffer) {
+        return buffer.readDouble();
+    }
 }

@@ -26,13 +26,20 @@ import org.ros.message.MessageDeclaration;
 import org.ros.message.MessageDefinitionProvider;
 import org.ros.message.MessageFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author pavel.cernocky@artin.cz
+ * @author pavel.erlebach@artin.cz
  */
 public class DefaultMessageClassAndFieldsProvider implements MessageClassAndFieldsProvider {
+  private static final String HEADER_CLASS_NAME = "std_msgs.HeaderImpl";
+  private static final String SEQ_SETTER_NAME = "setSeq";
 
   private volatile ImmutableMap<String, ClassAndFields> cache = ImmutableMap.of();
 
@@ -140,7 +147,7 @@ public class DefaultMessageClassAndFieldsProvider implements MessageClassAndFiel
             throw new IllegalStateException("Unknown list field type: " + fieldType);
         }
       } else {
-        return new ListMsgField(msgClass, getterName, setterName, fieldType, messageFactory, this);
+        return new ObjectListMsgField(msgClass, getterName, setterName, fieldType, messageFactory, this);
       }
     }
 
@@ -159,6 +166,9 @@ public class DefaultMessageClassAndFieldsProvider implements MessageClassAndFiel
           return new ShortMsgField(msgClass, getterName, setterName);
         case INT32:
         case UINT32:
+          if (msgClass.getName().equals(HEADER_CLASS_NAME) && setterName.equals(SEQ_SETTER_NAME)) {
+            return new HeaderSeqMsgField(msgClass, getterName, setterName);
+          }
           return new IntegerMsgField(msgClass, getterName, setterName);
         case INT64:
         case UINT64:
