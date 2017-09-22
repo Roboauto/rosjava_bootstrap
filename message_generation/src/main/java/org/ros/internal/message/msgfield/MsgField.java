@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf;
  */
 public interface MsgField {
 
-    void writeObjectValueToBuffer(Object objectToBeSerialized, ByteBuf buffer);
+    void writeObjectFieldToBuffer(Object objectToBeSerialized, ByteBuf buffer);
 
     void setBufferValueToObject(Object object, ByteBuf buffer);
 

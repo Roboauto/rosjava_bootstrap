@@ -17,7 +17,6 @@ public class IntegerMsgField extends AbstractMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof Integer);
         buffer.writeInt((Integer) valueToBeSerialized);
     }
 

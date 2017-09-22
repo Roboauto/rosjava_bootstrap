@@ -1,9 +1,6 @@
 package org.ros.internal.message.msgfield;
 
 import io.netty.buffer.ByteBuf;
-import org.ros.internal.message.FastMessageDeserializer;
-import org.ros.internal.message.FastMessageSerializer;
-import org.ros.internal.message.Message;
 import org.ros.internal.message.MessageClassAndFieldsProvider;
 import org.ros.internal.message.field.FieldType;
 import org.ros.message.MessageFactory;
@@ -44,14 +41,14 @@ public class MessageMsgField extends AbstractMsgField {
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
         for (MsgField msgField : msgFields) {
-            msgField.writeObjectValueToBuffer(valueToBeSerialized, buffer);
+            msgField.writeObjectFieldToBuffer(valueToBeSerialized, buffer);
         }
     }
 
     @Override
     protected void serializeNull(ByteBuf buffer) {
         for (MsgField msgField : msgFields) {
-            msgField.writeObjectValueToBuffer(null, buffer);
+            msgField.writeObjectFieldToBuffer(null, buffer);
         }
     }
 

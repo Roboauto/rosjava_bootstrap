@@ -16,10 +16,11 @@ public class IntegerArrayMsgField extends AbstractArrayMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof int[]);
         int[] typedValues = (int[]) valueToBeSerialized;
         if (size < 0) {
             buffer.writeInt(typedValues.length);
+        } else {
+            Preconditions.checkArgument(typedValues.length == size);
         }
         for (int intValue : typedValues) {
             buffer.writeInt(intValue);

@@ -17,7 +17,6 @@ public class DoubleMsgField extends AbstractMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof Double);
         buffer.writeDouble((Double) valueToBeSerialized);
     }
 

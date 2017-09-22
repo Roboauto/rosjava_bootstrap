@@ -17,10 +17,11 @@ public class ByteBufMsgField extends AbstractArrayMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof ByteBuf);
         ByteBuf typedValue = (ByteBuf) valueToBeSerialized;
         if (size < 0) {
             buffer.writeInt(typedValue.readableBytes());
+        } else {
+            Preconditions.checkArgument(typedValue.readableBytes() == size);
         }
         // By specifying the start index and length we avoid modifying value's
         // indices and marks.

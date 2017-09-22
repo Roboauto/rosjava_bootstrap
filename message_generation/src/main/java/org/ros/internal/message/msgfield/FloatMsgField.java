@@ -18,7 +18,6 @@ public class FloatMsgField extends AbstractMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof Float);
         buffer.writeFloat((Float) valueToBeSerialized);
     }
 

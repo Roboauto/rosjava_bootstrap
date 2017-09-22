@@ -16,10 +16,11 @@ public class BooleanArrayMsgField extends AbstractArrayMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof boolean[]);
         boolean[] typedValues = (boolean[]) valueToBeSerialized;
         if (size < 0) {
             buffer.writeInt(typedValues.length);
+        } else {
+            Preconditions.checkArgument(size == typedValues.length);
         }
         for (boolean booleanValue : typedValues) {
             buffer.writeByte(booleanValue ? 1 : 0);

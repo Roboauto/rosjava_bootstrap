@@ -17,7 +17,6 @@ public class ByteMsgField extends AbstractMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof Byte);
         buffer.writeByte((Byte) valueToBeSerialized);
     }
 

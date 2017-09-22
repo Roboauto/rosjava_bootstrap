@@ -16,10 +16,11 @@ public class DoubleArrayMsgField extends AbstractArrayMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof double[]);
         double[] typedValues = (double[]) valueToBeSerialized;
         if (size < 0) {
             buffer.writeInt(typedValues.length);
+        } else {
+            Preconditions.checkArgument(typedValues.length == size);
         }
         for (double doubleValue : typedValues) {
             buffer.writeDouble(doubleValue);

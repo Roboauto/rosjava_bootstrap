@@ -25,7 +25,7 @@ public abstract class AbstractMsgField implements MsgField {
     }
 
     @Override
-    public final void writeObjectValueToBuffer(Object objectToBeSerialized, ByteBuf buffer) {
+    public final void writeObjectFieldToBuffer(Object objectToBeSerialized, ByteBuf buffer) {
         try {
             Object valueToBeSerialized = null;
             if (objectToBeSerialized != null) {

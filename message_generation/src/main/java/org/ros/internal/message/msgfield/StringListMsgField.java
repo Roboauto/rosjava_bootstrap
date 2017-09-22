@@ -18,7 +18,6 @@ public class StringListMsgField extends AbstractListMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof List);
         List<String> typedValues = (List) valueToBeSerialized;
         buffer.writeInt(typedValues.size());
 
@@ -32,7 +31,7 @@ public class StringListMsgField extends AbstractListMsgField {
     @Override
     protected Object deserialize(ByteBuf buffer) {
         int length = buffer.readInt();
-        List<Object> value = new ArrayList<>(length);
+        List<String> value = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
             int stringLength = buffer.readInt();
             value.add(buffer.readSlice(stringLength).toString(StringMsgField.CHARSET));

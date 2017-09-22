@@ -17,7 +17,6 @@ public class TimeMsgField extends AbstractMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof Time);
         Time typedValue = (Time) valueToBeSerialized;
         buffer.writeInt(typedValue.secs);
         buffer.writeInt(typedValue.nsecs);

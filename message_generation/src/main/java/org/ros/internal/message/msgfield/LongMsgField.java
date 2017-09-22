@@ -17,7 +17,6 @@ public class LongMsgField extends AbstractMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof Long);
         buffer.writeLong((Long) valueToBeSerialized);
     }
 

@@ -16,10 +16,11 @@ public class FloatArrayMsgField extends AbstractArrayMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof float[]);
         float[] typedValues = (float[]) valueToBeSerialized;
         if (size < 0) {
             buffer.writeInt(typedValues.length);
+        } else {
+            Preconditions.checkArgument(typedValues.length == size);
         }
         for (float floatValue : typedValues) {
             buffer.writeFloat(floatValue);

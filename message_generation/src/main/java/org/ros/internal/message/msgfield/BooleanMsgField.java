@@ -17,7 +17,6 @@ public class BooleanMsgField extends AbstractMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof Boolean);
         buffer.writeByte((Boolean) valueToBeSerialized ? 1 : 0);
     }
 

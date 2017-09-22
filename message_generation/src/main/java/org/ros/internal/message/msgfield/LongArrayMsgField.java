@@ -16,10 +16,11 @@ public class LongArrayMsgField extends AbstractArrayMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof long[]);
         long[] typedValues = (long[]) valueToBeSerialized;
         if (size < 0) {
             buffer.writeInt(typedValues.length);
+        } else {
+            Preconditions.checkArgument(typedValues.length == size);
         }
         for (long longValue : typedValues) {
             buffer.writeLong(longValue);

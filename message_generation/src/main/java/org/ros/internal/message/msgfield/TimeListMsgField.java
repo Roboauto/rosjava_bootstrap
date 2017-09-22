@@ -20,7 +20,6 @@ public class TimeListMsgField extends AbstractListMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof List);
         List<Time> typedValues = (List) valueToBeSerialized;
         buffer.writeInt(typedValues.size());
 
@@ -33,7 +32,7 @@ public class TimeListMsgField extends AbstractListMsgField {
     @Override
     protected Object deserialize(ByteBuf buffer) {
         int length = buffer.readInt();
-        List<Object> value = new ArrayList<>(length);
+        List<Time> value = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
             value.add(new Time(buffer.readInt(), buffer.readInt()));
         }

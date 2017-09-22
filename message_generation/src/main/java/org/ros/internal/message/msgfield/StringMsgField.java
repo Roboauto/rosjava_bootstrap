@@ -21,7 +21,6 @@ public class StringMsgField extends AbstractMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof String);
         String typedValue = (String) valueToBeSerialized;
         byte[] bytes = typedValue.getBytes(CHARSET);
         buffer.writeInt(bytes.length);

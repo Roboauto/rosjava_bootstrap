@@ -19,8 +19,7 @@ public class DurationListMsgField extends AbstractListMsgField {
 
     @Override
     protected void serialize(ByteBuf buffer, Object valueToBeSerialized) {
-        Preconditions.checkArgument(valueToBeSerialized instanceof List);
-        List<Duration> typedValues = (List) valueToBeSerialized;
+        List<Duration> typedValues = (List<Duration>) valueToBeSerialized;
         buffer.writeInt(typedValues.size());
 
         for (Duration typedValue : typedValues) {
@@ -37,7 +36,7 @@ public class DurationListMsgField extends AbstractListMsgField {
     @Override
     protected Object deserialize(ByteBuf buffer) {
         int length = buffer.readInt();
-        List<Object> value = new ArrayList<>(length);
+        List<Duration> value = new ArrayList<>(length);
         for (int i = 0; i < length; i++) {
             value.add(new Duration(buffer.readInt(), buffer.readInt()));
         }

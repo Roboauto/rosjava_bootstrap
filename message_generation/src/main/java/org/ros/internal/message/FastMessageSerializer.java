@@ -1,7 +1,6 @@
 package org.ros.internal.message;
 
 import io.netty.buffer.ByteBuf;
-import org.ros.internal.message.field.Field;
 import org.ros.internal.message.msgfield.MsgField;
 import org.ros.message.MessageFactory;
 import org.ros.message.MessageIdentifier;
@@ -26,7 +25,7 @@ public class FastMessageSerializer implements MessageSerializer<Message> {
         buffer = buffer.order(ByteOrder.LITTLE_ENDIAN);
 
         for (MsgField msgField : msgFields) {
-            msgField.writeObjectValueToBuffer(message, buffer);
+            msgField.writeObjectFieldToBuffer(message, buffer);
         }
     }
 }
